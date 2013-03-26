@@ -1,15 +1,35 @@
-from flask import Flask, request, json, Response
+from flask import Flask, request, json, Response, session
 from pymongo import MongoClient
 from bson import json_util, objectid
+from flask.ext.login import *
+
+Flask.secret_key = "p\xd2i\xe2\xf12@\x10Z\xc1^So+\xda\xf1\x01\xd6\n\xcd\xee1\xa6\x0c"
 
 app = Flask(__name__)
-
-#TODO: add authentication
-#TODO: Endpoints for user creation
 
 # DB connection
 conn = MongoClient()
 db = conn.test
+
+#user auth
+login_manager = LoginManager()
+login_manager.setup_app(app)
+
+
+#TODO: add authentication
+#TODO: Endpoints for user creation
+
+class User:
+  id = None
+  def get(userid):
+    user = db['users'].find_one({"_id":objectid.ObjectId(userid)})
+  def get_id():
+    return unicode(id)
+
+
+@login_manager.user_loader
+def load_user(userid):
+  return User.get(userid)
 
 # getting entries jsonified
 def jentries(coll, scope={}):
@@ -18,8 +38,9 @@ def jentries(coll, scope={}):
     entries["entries"].append(entry)
   return entries
 
-#list all activities a user has
+
 @app.route('/<user>/activities', methods = ['POST', 'GET'])
+@login_required
 def list_activities(user):
 
   #list activities
