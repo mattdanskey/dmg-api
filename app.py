@@ -88,9 +88,10 @@ def put_session():
   resp = Response(js, status=200, mimetype='application/json')
   return resp
 
-@app.route('/<user>/activities', methods = ['POST', 'GET'])
+@app.route('/activities', methods = ['POST', 'GET'])
 @login_required
-def list_activities(user):
+def list_activities():
+  user = current_user.username
 
   #list activities
   if request.method == 'GET':
@@ -111,8 +112,11 @@ def list_activities(user):
     resp = Response(js, status=200, mimetype='application/json')
     return resp
 
-@app.route('/<user>/<activity>', methods = ['POST', 'GET'])
-def entries(user, activity):
+@app.route('/<activity>', methods = ['POST', 'GET'])
+@login_required
+def entries(activity):
+  user = current_user.username
+  
   #List an activity's entries
   if request.method == 'GET':
     coll = db[user]
@@ -133,8 +137,10 @@ def entries(user, activity):
     resp = Response(js, status=200, mimetype='application/json')
     return resp
 
-@app.route('/<user>/<objectID>', methods = ['DELETE'])
-def delete_entry(user, objectID):
+@app.route('/<objectID>', methods = ['DELETE'])
+@login_required
+def delete_entry(objectID):
+  user = current_user.username
   db[user].remove({"_id":objectid.ObjectId(objectID)})
   resp = Response('removed', status=200, mimetype='application/json')
   return resp
