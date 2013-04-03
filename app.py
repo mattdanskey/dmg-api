@@ -16,6 +16,7 @@ login_manager = LoginManager()
 login_manager.setup_app(app)
 
 #TODO: Endpoints for user creation
+#TODO: Dates and times
 
 class User(object):
   def __init__(self, username, userId, active=True):
@@ -106,6 +107,7 @@ def list_activities():
     entry = {
         'activity': True,
         'name': request.json['name']
+        'measure': request.json['measure'],
         }
     oid = db[user].insert(entry)
     js = json.dumps(db[user].find_one({'_id': oid}), default=json_util.default)
@@ -129,8 +131,8 @@ def entries(activity):
   elif request.method == 'POST':
     entry = {
         'activity': activity,
-        'measure': request.json['measure'],
         'measurement': request.json['measurement']
+        'datetime': request.json['datetime']
         }
     oid = db[user].insert(entry)
     js = json.dumps(db[user].find_one({'_id': oid}), default=json_util.default)
@@ -144,6 +146,16 @@ def delete_entry(objectID):
   db[user].remove({"_id":objectid.ObjectId(objectID)})
   resp = Response('removed', status=200, mimetype='application/json')
   return resp
+  
+@app.route('/users', methods = ['POST'])
+def create_user()
+  if request.method == 'POST':
+    new_user = {
+      'username': request.json['username']
+      'password': request.json['password']
+    }
+    db['users'].insert(new_user)
+    return Response(status=200, mimetype='application/json')
 
 if __name__ == '__main__':
   app.run(debug=True)
